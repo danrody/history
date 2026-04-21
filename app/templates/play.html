@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Квиз | Санкт-Петербург</title>
+    <link rel="stylesheet" href="/static/css/styles.css" />
+  </head>
+  <body class="game-page">
+    <header class="game-header">
+      <a href="/" class="back-link">← Меню</a>
+      <div class="score">Очки: <span id="score">0</span></div>
+    </header>
+
+    <main class="quiz-container">
+      <h2 id="questionPrompt">Загрузка вопроса...</h2>
+      <div id="mainImageWrap" class="main-image-wrap hidden">
+        <img id="mainImage" src="" alt="Здание" />
+      </div>
+      <div id="options" class="options-grid"></div>
+    </main>
+
+    <div id="loseModal" class="modal hidden">
+      <div class="modal-card">
+        <h3>Неверный ответ</h3>
+        <p><strong id="correctName"></strong></p>
+        <p id="buildingDescription"></p>
+        <div class="menu-actions">
+          <button id="restartBtn" class="btn btn-primary">🔁 Рестарт</button>
+          <a href="/learn" class="btn btn-ghost">📖 Перейти к урокам</a>
+        </div>
+      </div>
+    </div>
+
+    <script src="/static/js/play.js" defer></script>
+  </body>
+</html>
