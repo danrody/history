@@ -3,7 +3,6 @@ const promptEl = document.getElementById("questionPrompt");
 const optionsEl = document.getElementById("options");
 const mainImageWrap = document.getElementById("mainImageWrap");
 const mainImage = document.getElementById("mainImage");
-const nextBtn = document.getElementById("nextBtn");
 
 const loseModal = document.getElementById("loseModal");
 const correctName = document.getElementById("correctName");
@@ -12,14 +11,21 @@ const restartBtn = document.getElementById("restartBtn");
 
 let currentQuestion = null;
 let score = 0;
+let isChecking = false;
 
 function setScore(value) {
   score = value;
   scoreEl.textContent = String(score);
 }
 
+function setOptionsDisabled(disabled) {
+  [...optionsEl.querySelectorAll("button")].forEach((btn) => {
+    btn.disabled = disabled;
+  });
+}
+
 async function loadQuestion() {
-  nextBtn.classList.add("hidden");
+  isChecking = false;
   optionsEl.innerHTML = "";
   mainImageWrap.classList.add("hidden");
 
@@ -45,8 +51,7 @@ async function loadQuestion() {
 
     if (data.mode === "question_to_images") {
       btn.innerHTML = `
-        <img src="${option.image}" alt="${option.label}">
-        <span>${option.label}</span>
+        <img src="${option.image}" alt="Вариант ответа">
       `;
     } else {
       btn.textContent = option.label;
@@ -58,7 +63,9 @@ async function loadQuestion() {
 }
 
 async function submitAnswer(selectedId) {
-  if (!currentQuestion) return;
+  if (!currentQuestion || isChecking) return;
+  isChecking = true;
+  setOptionsDisabled(true);
 
   const res = await fetch("/api/quiz/check", {
     method: "POST",
@@ -69,14 +76,15 @@ async function submitAnswer(selectedId) {
   const data = await res.json();
 
   if (!res.ok) {
+    isChecking = false;
+    setOptionsDisabled(false);
     promptEl.textContent = data.detail || "Ошибка проверки";
     return;
   }
 
   if (data.correct) {
     setScore(score + 1);
-    nextBtn.classList.remove("hidden");
-    [...optionsEl.querySelectorAll("button")].forEach((btn) => (btn.disabled = true));
+    setTimeout(loadQuestion, 700);
   } else {
     correctName.textContent = `Правильный ответ: ${data.correct_name}`;
     buildingDescription.textContent = data.description;
@@ -84,7 +92,6 @@ async function submitAnswer(selectedId) {
   }
 }
 
-nextBtn.addEventListener("click", loadQuestion);
 restartBtn.addEventListener("click", () => {
   loseModal.classList.add("hidden");
   setScore(0);
